@@ -27,15 +27,16 @@ def tfidf_matrix(dataset):
     return tfidf_matrix, terms
 
 
-def get_most_common(token_list):
+def build_all_joined_tokens(token_list):
     all_joined_tokens = []
-    most_common = []
     for tokens in token_list:
         joined_tokens = " ".join(tokens)
         all_joined_tokens.append(joined_tokens)
+    return all_joined_tokens
 
-    tf_idf_scores, terms = tfidf_matrix(all_joined_tokens)
-    tf_idf_scores = tf_idf_scores.toarray()
+
+def most_common_counter(tf_idf_scores, terms):
+    most_common = []
     row = 0
     dimension = tf_idf_scores.shape
     while row < dimension[0]:
@@ -49,6 +50,17 @@ def get_most_common(token_list):
         sorted_words = sorted(word_rate, key=lambda x: (x[1], x[0]), reverse=True)[0:5]
         most_common.append([word[0] for word in sorted_words])
         row = row + 1
+    return most_common
+
+
+def get_most_common(token_list):
+    all_joined_tokens = build_all_joined_tokens(token_list)
+
+    tf_idf_scores, terms = tfidf_matrix(all_joined_tokens)
+    tf_idf_scores = tf_idf_scores.toarray()
+
+    most_common = most_common_counter(tf_idf_scores, terms)
+
     return most_common
 
 
@@ -95,5 +107,6 @@ def main():
     for i, headline in enumerate(headlines):
         print(headline)
         print(*most_common[i])
+
 if __name__ == '__main__':
     main()
