@@ -28,27 +28,34 @@ def tfidf_matrix(dataset):
 
 
 def get_most_common(token_list):
+    all_joined_tokens = []
     most_common = []
-    joined_tokens = []
     for tokens in token_list:
         joined_tokens = " ".join(tokens)
-        # all_joined_tokens.append(" ".join(tokens))
+        all_joined_tokens.append(joined_tokens)
 
-        tf_idf_scores, terms = tfidf_matrix([joined_tokens])
-        tf_idf_scores = tf_idf_scores.toarray()
+    tf_idf_scores, terms = tfidf_matrix(all_joined_tokens)
+    tf_idf_scores = tf_idf_scores.toarray()
+    row = 0
+    dimension = tf_idf_scores.shape
+    while row < dimension[0]:
+        column = 0
         word_rate = []
-        for row, text_idx in enumerate(range(tf_idf_scores.shape[0])):
-            for col, tfidf_score in enumerate(tf_idf_scores[text_idx]):
-                if tfidf_score != 0:
-                    word_rate.append((terms[col], tfidf_score))
-            sorted_words = sorted(word_rate, key=lambda x: (x[1],x[0]), reverse=True)[0:5]
-            most_common.append([word[0] for word in sorted_words])
+        while column < dimension[1]:
+            if tf_idf_scores[row][column] != 0:
+                word_rate.append((terms[column], tf_idf_scores[row][column]))  # first value = word , second value = rate
+            column += 1
+    #    sorting word
+        sorted_words = sorted(word_rate, key=lambda x: (x[1], x[0]), reverse=True)[0:5]
+        most_common.append([word[0] for word in sorted_words])
+        row = row + 1
     return most_common
 
 
 def filter_token(token):
     filter_list = stopwords.words('english')
     filter_list += list(string.punctuation)
+    filter_list +=  ["ha", "wa", "u", "a"]
     filtered_token = [inst for inst in token if inst not in filter_list]
     return filtered_token
 
